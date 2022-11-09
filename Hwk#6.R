@@ -1,0 +1,77 @@
+# installing packages
+#install.packages("binom")
+ 
+#loading libraries
+library(binom)
+
+#newtonraphson function
+newtonraphson <- function(ftn, x0, tol = 1e-9, max.iter = 100) {
+  x <- x0 # x0: the initial value
+  fx <- ftn(x)
+  iter <- 0
+  while ((abs(fx[1]) > tol) & (iter < max.iter)) {
+    x <- x - fx[1]/fx[2]
+    fx <- ftn(x)
+    iter <- iter + 1
+    cat("At iteration", iter, "value of x is:", x, "\n")
+  }
+  if (abs(fx[1]) > tol) {
+    cat("Algorithm failed to converge\n")
+    return(NULL)
+  } else { # abs(fx[1]) <= tol
+    cat("Algorithm converged\n")
+    return(x)
+  }
+}
+
+p <- seq(0,1,0.01)
+fp <- (-0.975)
+for (k in 0:19) {
+    fp <- fp+choose(100,k)*(p^k)*((1-p)^(100-k))
+}
+plot(p,fp, type = "l")
+
+#pL
+ftn1 <- function(p) {  
+  fp <- (-0.975)
+  dfp <- 0
+  for (k in 0:19) {
+    fp <- fp+choose(100,k)*(p^k)*((1-p)^(100-k))
+    dfp <- dfp+choose(100,k)*(k*(p^(k-1))*((1-p)^(100-k))-(p^k)*(100-k)*((1-p)^(99-k)))
+  }
+  return(c(fp, dfp))
+}
+newtonraphson(ftn1, 0.19, 1e-9)
+
+
+#pU
+
+p <- seq(0,1,0.01)
+fp <- (-0.025)
+for (k in 0:20) {
+  fp <- fp+choose(100,k)*(p^k)*((1-p)^(100-k))
+}
+plot(p,fp, type = "l")
+
+
+ftn2 <- function(p) {  
+  fp <- (-0.025)
+  dfp <- 0
+  for (k in 0:20) {
+    fp <- fp+choose(100,k)*(p^k)*((1-p)^(100-k))
+    dfp <- dfp+choose(100,k)*(k*(p^(k-1))*((1-p)^(100-k))-(p^k)*(100-k)*((1-p)^(99-k)))
+  }
+  return(c(fp, dfp))
+}
+
+newtonraphson(ftn2, 0.25, 1e-9)
+
+binom.confint(20, 100, conf.level = 0.95, methods = "all")
+newtonraphson(ftn1, 0.19, 1e-9)
+newtonraphson(ftn2, 0.25, 1e-9)
+
+#asymptotic
+aci <- 0.2
+aci-qnorm(0.975)*sqrt((aci*(1-aci))/100)
+aci+qnorm(0.975)*sqrt((aci*(1-aci))/100)
+binom.confint(20, 100, conf.level = 0.95, methods = "all")
