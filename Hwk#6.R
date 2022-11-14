@@ -24,6 +24,7 @@ newtonraphson <- function(ftn, x0, tol = 1e-9, max.iter = 100) {
   }
 }
 
+#pL
 p <- seq(0,1,0.01)
 fp <- (-0.975)
 for (k in 0:19) {
@@ -31,7 +32,7 @@ for (k in 0:19) {
 }
 plot(p,fp, type = "l")
 
-#pL
+
 ftn1 <- function(p) {  
   fp <- (-0.975)
   dfp <- 0
@@ -41,8 +42,6 @@ ftn1 <- function(p) {
   }
   return(c(fp, dfp))
 }
-newtonraphson(ftn1, 0.19, 1e-9)
-
 
 #pU
 
@@ -64,14 +63,12 @@ ftn2 <- function(p) {
   return(c(fp, dfp))
 }
 
-newtonraphson(ftn2, 0.25, 1e-9)
-
-binom.confint(20, 100, conf.level = 0.95, methods = "all")
 newtonraphson(ftn1, 0.19, 1e-9)
 newtonraphson(ftn2, 0.25, 1e-9)
+binom.confint(20, 100, conf.level = 0.95, methods = "all")
+
 
 #asymptotic
 aci <- 0.2
 aci-qnorm(0.975)*sqrt((aci*(1-aci))/100)
 aci+qnorm(0.975)*sqrt((aci*(1-aci))/100)
-binom.confint(20, 100, conf.level = 0.95, methods = "all")
