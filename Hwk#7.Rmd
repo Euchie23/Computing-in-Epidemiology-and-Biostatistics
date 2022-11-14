@@ -1,0 +1,88 @@
+---
+title: "Hwk#7"
+author: "Euchie Jn Pierre"
+date: "2022-11-13"
+output: pdf_document
+---
+
+### This homework is to practice constructing a log-likelihood function.
+
+## **NewtonRaphson function**
+```{r,  eval=T, R.options=list(max.print=10)}
+#newtonraphson function
+newtonraphson <- function(ftn, x0, tol = 1e-9, max.iter = 100) {
+  x <- x0 # x0: the initial value
+  fx <- ftn(x)
+  iter <- 0
+  while ((abs(fx[1]) > tol) & (iter < max.iter)) {
+    x <- x - fx[1]/fx[2]
+    fx <- ftn(x)
+    iter <- iter + 1
+    cat("At iteration", iter, "value of x is:", x, "\n")
+  }
+  if (abs(fx[1]) > tol) {
+    cat("Algorithm failed to converge\n")
+    return(NULL)
+  } else { # abs(fx[1]) <= tol
+    cat("Algorithm converged\n")
+    return(x)
+  }
+}
+
+```
+\newpage   
+## **Ex 18_1  (log-likelihood function of mean number and maximum likelihood estimate)**
+```{r,  eval=T, echo=TRUE}
+#plotting log likelihood function for mean number of accidents(lambda) in one month.
+loglike <- function(x, lambda){
+  loglikelihood <- 0
+  for (i in 1:length(x)){
+      loglikelihood <- loglikelihood + log(exp(-lambda)*(lambda^x[i])/factorial(x[i]))
+    }
+  return(loglikelihood)
+}
+x <- c(5, 5, 6, 0, 1, 2, 4, 4, 3, 5, 7, 10)
+lambda <- seq(0,12,0.01)
+fp2 <- loglike(x,lambda)
+plot(lambda,fp2,col=1, type="l")
+lambdahat <- sum(x)/length(x)
+abline(v=lambdahat)
+```
+\newpage  
+```{r,  eval=T, echo=TRUE}
+# solving the maximum likelihood estimate using the newton-raphson method
+f <- (-length(x))+sum(x)/lambda
+plot(lambda,f, type="l") # plotting graph to find initial value
+abline(h=0, col=2)
+
+
+ftn <- function(lambda) {
+  f <- (-length(x))+sum(x)/lambda
+  df <- -(lambda^(-2))*sum(x)
+  return(c(f,df))
+}
+newtonraphson(ftn, 2, 1e-6) 
+```
+\newpage  
+## **Ex S5_1 (calculating the log-likelihood of a model)**
+```{r,  eval=T, echo=TRUE}
+bmi <- read.csv("Data/BMIrepeated.csv")
+head(bmi)
+
+#constructing design matrix
+b <-cbind(rep(1, length(bmi$BMI3)),as.numeric(as.factor(bmi$SEX)), bmi$AGE, bmi$Treatment)
+head(b)
+#calculating regression coefficients
+beta <- solve(t(b)%*%b)%*%t(b)%*%matrix(bmi$BMI3,ncol = 1)
+beta
+#Calculating residuals
+res<-bmi$BMI3-b%*%beta
+head(res)
+#estimating sigma2
+sigma2 <- sum(res^2)/length(bmi$BMI3)
+-(length(bmi$BMI3)/2)*(log(2*pi)+log(sigma2)+1)
+#Constructing a model to compare our results
+model1 <- lm(BMI3~SEX+AGE+Treatment, data = bmi)
+logLik(model1)
+```
+
