@@ -1,0 +1,79 @@
+---
+title: "Hwk#8"
+author: "Euchie Jn Pierre"
+date: "2022-11-22"
+output: pdf_document
+---
+
+### This homework is to practice finding the maximum likelihood estimates for a logistic regression.
+
+## **High-dimensional NewtonRaphson (HDNR)function**
+```{r,  eval=T, R.options=list(max.print=10)}
+newtonraphson <- function(ftn, x0, tol = 1e-9, max.iter = 100) {
+  x <- x0 # x0: the initial value
+  fx <- ftn(x)
+  iter <- 0
+  while ((max(abs(fx[[1]])) > tol) & (iter < max.iter)) {
+    x <- x - solve(fx[[2]]) %*% fx[[1]]
+    fx <- ftn(x)
+    iter <- iter + 1
+  }
+  if (max(abs(fx[[1]])) > tol) {
+    cat('Algorithm failed to converge\n')
+    return(NULL)
+  } else { # max(abs(fx[[1]])) <= tol
+    cat("Algorithm converged\n")
+    return(x)
+  }
+}
+```
+  
+## **#Ex20-1 preparing data**
+```{r,  eval=T, echo=TRUE}
+#Preparing data
+resp<- read.csv("Data/resp.csv", header = T)
+head(resp)
+```
+\newpage 
+## **#Ex20-1 (Part 1) using Newton-Raphson method to find the MLE of the regression coefficients of the logistic regression**
+```{r,  eval=T, echo=TRUE}
+#constructing design matrix for X
+X <- cbind(rep(1, length(resp$outcome)), ifelse(resp$treatment=='P', 1,0), resp$age, resp$baseline) 
+head(X)
+dim(X)
+
+Y <- resp$outcome # preparing column vector for Y
+
+ftn <- function(betacoeff) {
+  pi1 <- exp(X%*%betacoeff)/ (1+exp(X%*%betacoeff))
+  gradient <- t(X)%*%(Y-pi1)
+  hessian <- -t(X)%*%diag(c(pi1*(1-pi1)), length(resp$outcome))%*%X
+  return(list(gradient, hessian)) #preparing function for high-dimensionalNR
+}
+
+newtonraphson(ftn,c(0,0,0,0)) # running HDNR to find intercept and first 3 regression coeffs
+glm(outcome~treatment+age+baseline, family = binomial, data = resp) #using glm to check answers.
+```
+\newpage 
+## **#Ex20-1 (Part 2) finding the variance-covariance (VCOV) matrix for the beta coefficients**
+```{r,  eval=T, echo=TRUE}
+beta<-newtonraphson(ftn,c(0,0,0,0)) #saving the four betacoeffs from the HDNR as an object 'beta'
+head(beta)
+model<-glm(outcome~treatment+age+baseline, family = binomial, data = resp)#saving answer from glm 
+solve(-ftn(beta)[[2]])# finding variance-covariance (VCOV)matrix for mle.
+vcov(model) #to check if our calculation for VCOV above is correct
+```
+## **#Ex20-1 (Part 3) finding the log likelihood at the beta coefficients**
+```{r,  eval=T, echo=TRUE}
+ftn1 <- function(betacoeff) {
+  pi1 <- exp(X%*%betacoeff)/ (1+exp(X%*%betacoeff))
+  gradient <- t(X)%*%(Y-pi1)
+  hessian <- -t(X)%*%diag(c(pi1*(1-pi1)), length(resp$outcome))%*%X
+  loglike <- sum(Y*log(pi1/(1-pi1))+log(1-pi1))
+  return(list(gradient, hessian, loglike)) #finding loglikelihood of the betacoeffs
+}
+
+ftn1(beta) [[3]] # retrieving the 'loglike' from the list.
+
+logLik(model) #using base R function 'loglike' to check answers.
+```
