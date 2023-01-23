@@ -1,20 +1,35 @@
 #Ex S2 making a function to calculate number of steps to move 20 disks from rod A to rod C----
-disk_mov<- function(n, from, via, to) {
+disk_mov<- function(n, from, via, to, steps){
+  steps <- steps+1
   if(n == 1) {
-    print(paste('Move disk', n , 'from', from, 'to', to))
+    print(paste('Move disk', n , 'from', from, 'to', to, steps))
     return()
   } else {
-    disk_mov(n - 1, from, to, via)
-    print(paste('Move disk', n , 'from', from, 'to', to))
-    disk_mov(n - 1, via, from, to) 
-    steps <- 2^n - 1
-    return(paste("No. of steps =", steps))
-    return(disk_mov(n - 1, via, from, to ))
+    disk_mov(n - 1, from, to, via,steps)
+    print(paste('Move disk', n , 'from', from, 'to', to, steps))
+    disk_mov(n - 1, via, from, to, steps) 
+    #disk_mov((2^n-1)+1)
+    #steps <- 2^n - 1
+    #return(paste("No. of steps =", steps))
+    #return(disk_mov(2^n-1)+1)
   }
 }
-disk_mov(20, 'A', 'B', 'C')
+disk_mov(3, 'A', 'B', 'C', 0)
 
 
+
+
+ nfact2 <- function(n) {
+  # calculate n factorial
+  if (n == 1) {
+    cat("called nfact2(1)\n")
+    return(1)
+  } else {
+    cat("called nfact2(", n, ")\n", sep = "")
+    return(2*nfact2(n-1)+1)
+  }
+}
+nfact2(20)
 
 #Ex S3 using the “apply” command to calculate the medians, maximums, and minimums, of each row and each column----
 
