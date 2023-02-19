@@ -38,7 +38,7 @@ head(resp)
 ## **#Ex20-1 (Part 1) using Newton-Raphson method to find the MLE of the regression coefficients of the logistic regression**
 ```{r,  eval=T, echo=TRUE}
 #constructing design matrix for X
-X <- cbind(rep(1, length(resp$outcome)), ifelse(resp$treatment=='P', 1,0), resp$age, resp$baseline) 
+x <- cbind(rep(1, length(resp$outcome)), ifelse(resp$treatment=='P', 1,0), resp$age, resp$baseline) 
 head(X)
 dim(X)
 

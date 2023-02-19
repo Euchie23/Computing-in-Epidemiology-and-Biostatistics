@@ -8,7 +8,8 @@ rate$Age.f <- factor(rate$Age)
 Y <- rate$Death # preparing column vector for Y
 
 #constructing design matrix for X
-X <- cbind(model.matrix(~Age.f,rate),ifelse(rate$sex=='m', 1,0)) 
+#X <- cbind(model.matrix(~Age.f,rate),ifelse(rate$sex=='m', 1,0)) 
+X <- model.matrix(~Age.f+ ifelse(rate$sex=='m', 1,0),rate)
 colnames(X)[13] <- "Sex"
 head(X)
 dim(X)
@@ -42,7 +43,7 @@ newtonraphson <- function(ftn, x0, tol = 1e-9, max.iter = 100) {
   }
 }
 
-newtonraphson(ftn,c(0,0,0,0,0,0,0,0,0,0,0,0,0)) # running HDNR to find intercept and first 3 regression coeffs
+newtonraphson(ftn,c(0,0,0,0,0,0,0,0,0,0,0,0,0)) # running HDNR to find intercept and first 12 regression coeffs
 glm(Death~Age.f+sex, offset=log(PY/100000), data=rate, family=poisson)
 
 

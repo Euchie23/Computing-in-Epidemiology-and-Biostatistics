@@ -10,8 +10,7 @@ nfact2 <- function(n) {
     return(n*nfact2(n-1))
   }
 }
-nfact2(6)
-nfact2(10)
+
 
 
        
